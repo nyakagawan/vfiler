@@ -23,14 +23,14 @@ MTIME_FORMAT = '%Y-%m-%d %H:%M'
 class ElemBase( object ):
     """ エレメント基本
     """
-    def __init__( self ):
+    def __init__( self, listCtrl ):
         self.index_ = 0
         self.name_ = ""
         self.size_ = 0
         self.mtime_ = 0
         self.bgColor_ = ITEM_BG_COLOR
         self.textColor_ = ITEM_TEXT_COLOR
-        self.owner_ = None
+        self.listCtrl_ = listCtrl
 
     def setIndex( self, index ):
         self.index_ = index
@@ -44,13 +44,11 @@ class ElemBase( object ):
         self.bgColor_ = color
     def setTextColor( self, color ):
         self.textColor_ = color
-    def setOwner( self, owner ):
-        self.owner_ = owner
+    def setListCtrl( self, listCtrl ):
+        self.listCtrl_ = listCtrl
 
-    def getOwner( self ):
-        return self.owner_
     def getListCtrl( self ):
-        return None
+        return self.listCtrl_
 
     def insertStringItem( self, index, string ):
         self.getListCtrl().InsertStringItem( index, string )
@@ -73,8 +71,8 @@ class ElemBase( object ):
         """ エレメントの内容をGUIに反映する
         """
         self.insertStringItem( self.index_, self.name_ )
-        self.setStringItem( self.index_, self.COLUMN_INDEX_SIZE, str( self.size_ ) + 'B' )
-        self.setStringItem( self.index_, self.COLUMN_INDEX_MTIME, time.strftime( MTIME_FORMAT, time.localtime( self.mtime_ ) ) )
+        self.setStringItem( self.index_, COLUMN_INDEX_SIZE, str( self.size_ ) + 'B' )
+        self.setStringItem( self.index_, COLUMN_INDEX_MTIME, time.strftime( MTIME_FORMAT, time.localtime( self.mtime_ ) ) )
         self.setItemBackgroundColour( self.index_, self.bgColor_ )
         self.setItemTextColour( self.index_, self.textColor_ )
         #self._dumpVariable()
@@ -84,10 +82,11 @@ class ElemFile( ElemBase ):
     """ ファイルエレメント
     """
 
-    def __init__( self, index, elemDir, fileName ):
+    def __init__( self, index, listCtrl, fileName ):
+        ElemBase.__init__( self, listCtrl )
+
         self.ext_ = ""
         self.setIndex( index )
-        self.setOwner( elemDir )
         ( name, ext ) = os.path.splitext( fileName )
         self.setName( name )
         self.setExt( ext[ 1: ] )
@@ -98,19 +97,16 @@ class ElemFile( ElemBase ):
 
     def setExt( self, ext ):
         self.ext_ = ext
-    def getListCtrl( self ):
-        return self.getOwner().getListCtrl()
 
     def update( self ):
-        super( ElemFile, self ).update()
-        self.setStringItem( self.index_, self.COLUMN_INDEX_EXT, self.ext_ )
+        ElemBase.update( self )
+        self.setStringItem( self.index_, COLUMN_INDEX_EXT, self.ext_ )
 
 class ElemDir( ElemBase ):
     """ ディレクトリエレメント
     """
     def __init__( self, index, listCtrl, dirName ):
-        self.path_ = ""
-        self.listCtrl_ = None
+        ElemBase.__init__( self, listCtrl )
 
         self.setIndex( index )
         self.setName( dirName )
@@ -120,45 +116,35 @@ class ElemDir( ElemBase ):
         self.setTextColor( ITEM_TEXT_COLOR_DIR )
         self.setListCtrl( listCtrl )
 
-        Util.trace( self.path_ )
-        self.setElemList( [] )
-        self.setSelectList( [] )
-        self.setCursorElem( self.getElem( 0 ) )
+#        self.setElemList( [] )
+#        self.setSelectList( [] )
+#        self.setCursorElem( self.getElem( 0 ) )
 
-    def setPath( self, path ):
-        self.path_ = path
-    def setListCtrl( self, listCtrl ):
-        self.listCtrl_ = listCtrl
-    def setElemList( self, elemList ):
-        self.elemList_ = elemList
-    def setSelectList( self, elemList ):
-        self.selectList_ = elemList
-    def setCursorElem( self, elem ):
-        self.cursorElem_ = elem
-
-    def getPath( self ):
-        return self.path_
-    def getListCtrl( self ):
-        return self.listCtrl_
-
-    def clear( self ):
-        del self.elemList_[:]
-
-    def getElem( self, index ):
-        if index<len( elemList_ ):
-            return elemList_[ index ]
-        return None
-
-    def addElem( self, elemFile ):
-        """ ファイルエレメントの追加
-        """
-        self.elemList_.append( elemFile )
-
-    def removeElem( self, elem ):
-        try:
-            self.elemList_.remove( elem )
-        except ValueError:
-            Util.trace( "can't remove elem" )
+#    def setElemList( self, elemList ):
+#        self.elemList_ = elemList
+#    def setSelectList( self, elemList ):
+#        self.selectList_ = elemList
+#    def setCursorElem( self, elem ):
+#        self.cursorElem_ = elem
+#
+#    def clear( self ):
+#        del self.elemList_[:]
+#
+#    def getElem( self, index ):
+#        if index<len( elemList_ ):
+#            return elemList_[ index ]
+#        return None
+#
+#    def addElem( self, elemFile ):
+#        """ ファイルエレメントの追加
+#        """
+#        self.elemList_.append( elemFile )
+#
+#    def removeElem( self, elem ):
+#        try:
+#            self.elemList_.remove( elem )
+#        except ValueError:
+#            Util.trace( "can't remove elem" )
 
 
 

@@ -14,8 +14,8 @@ class MyListCtrl( wx.ListCtrl ):
     def __init__( self, parent, id ):
         wx.ListCtrl.__init__( self, parent, id, style=wx.LC_REPORT )
         self.initGui()
-        self.curDir_ = ElemDir( self, os.path.abspath( os.getcwd() ) )
-        self.updateFileList()
+        self.curDir_ = os.path.abspath( os.getcwd() )
+        self.updateFileList( self.curDir_ )
 
     def initGui( self ):
         self.InsertColumn( 0, 'Name' )
@@ -30,27 +30,33 @@ class MyListCtrl( wx.ListCtrl ):
 
         self.SetBackgroundColour( BG_COLOR )
 
+        self.Bind( wx.EVT_LIST_ITEM_SELECTED, self.OnItemSelected )
+        self.Bind( wx.EVT_LIST_KEY_DOWN, self.OnKeyDown )
+
+    def OnItemSelected( self, event ):
+        print "OnItemSelected !!!"
+    def OnKeyDown( self, event ):
+        print "OnKeyDown !!!!" + str( event.GetKeyCode() )
+
     def changeDir( self, path ):
         """ カレントディレクトリを移動
         """
-        path = os.path.abspath( path )
-        if not self.curDir_:
-            self.curDir_ = ElemDir( -1, self, path )
+#        path = os.path.abspath( path )
+#        if not self.curDir_:
+#            self.curDir_ = ElemDir( -1, self, path )
   
-    def updateFileList( self ):
-        self.curDir_.clear()
-        pwd = self.curDir_.getPath()
-        elems = os.listdir( '.' )
+    def updateFileList( self, curDir ):
+        Util.trace( "curDir [%s]. updateFileList" %(curDir) )
+        elems = os.listdir( curDir )
         iFile = 0
         for e in elems:
             if os.path.isdir( e ):
                 Util.trace( "adddir " + e )
-                elem = ElemDir( iFile, self, self.curDir_. )
+                elem = ElemDir( iFile, self, e )
             else:
                 Util.trace( "addfile " + e )
-                elem = ElemFile( iFile, self.curDir_, e )
+                elem = ElemFile( iFile, self, e )
             elem.update()
-            self.curDir_.addElem( elem )
             iFile += 1
 
 
