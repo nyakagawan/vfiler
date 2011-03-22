@@ -13,6 +13,7 @@ ID_SPLITTER = 300
 class FileHunter( wx.Frame ):
     def __init__( self, parent, id, title ):
         wx.Frame.__init__( self, parent, -1, title )
+        self.Center()
 
         self.splitter = wx.SplitterWindow( self, ID_SPLITTER, style=wx.SP_BORDER )
         self.splitter.SetMinimumPaneSize( 50 )
@@ -33,7 +34,8 @@ class FileHunter( wx.Frame ):
         #self.sizer.Add( self.sizer2, 0, wx.EXPAND )
         self.SetSizer( self.sizer )
 
-        size = wx.DisplaySize()
+        #size = wx.DisplaySize()
+        size = (800,400)
         self.SetSize( size )
 
         self.sb = self.CreateStatusBar()
