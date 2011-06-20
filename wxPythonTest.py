@@ -25,6 +25,10 @@ class FileHunter( wx.Frame ):
         self.Bind( wx.EVT_SIZE, self.OnSize )
         self.Bind( wx.EVT_SPLITTER_DCLICK, self.OnDoubleClick, id=ID_SPLITTER )
 
+        """ これが動かない...。なんでだろー？ """
+        self.RegisterHotKey( 100, wx.MOD_ALT, ord("t") )
+        self.Bind( wx.EVT_HOTKEY, self.handleHotKey, id=100 )
+
         self.CreateWxMenu()
 #        self.CreateWxToolBar()
 #        self.CreateWxFunctionButton()
@@ -42,6 +46,8 @@ class FileHunter( wx.Frame ):
         self.sb.SetStatusText( os.getcwd() )
         self.Center()
         self.Show( True )
+    def handleHotKey( self, event ):
+        print "HOTHOT"
 
     def CreateWxMenu( self ):
         filemenu = wx.Menu()
@@ -110,6 +116,7 @@ class FileHunter( wx.Frame ):
     def OnDoubleClick( self, event ):
         size = self.GetSize()
         self.splitter.SetSashPosition( size.x / 2 )
+
 
 app = wx.App( 0 )
 FileHunter( None, -1, "File Hunter" )

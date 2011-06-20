@@ -6,18 +6,12 @@ import wx
 import time
 
 from util import Util
-
+from define import Def
 
 BG_COLOR        = '#191970'
 ITEM_BG_COLOR   = '#191970'
 ITEM_TEXT_COLOR = '#ffc0cb'
 ITEM_TEXT_COLOR_DIR = '#66cdaa'
-
-COLUMN_INDEX_EXT    = 1
-COLUMN_INDEX_SIZE   = 2
-COLUMN_INDEX_MTIME  = 3
-
-MTIME_FORMAT = '%Y-%m-%d %H:%M'
 
 
 class ElemBase( object ):
@@ -71,8 +65,8 @@ class ElemBase( object ):
         """ エレメントの内容をGUIに反映する
         """
         self.insertStringItem( self.index_, self.name_ )
-        self.setStringItem( self.index_, COLUMN_INDEX_SIZE, str( self.size_ ) + 'B' )
-        self.setStringItem( self.index_, COLUMN_INDEX_MTIME, time.strftime( MTIME_FORMAT, time.localtime( self.mtime_ ) ) )
+        self.setStringItem( self.index_, Def.LIST_COL_INDEX_SIZE, str( self.size_ ) + 'B' )
+        self.setStringItem( self.index_, Def.LIST_COL_INDEX_MTIME, time.strftime( Def.MTIME_FORMAT, time.localtime( self.mtime_ ) ) )
         self.setItemBackgroundColour( self.index_, self.bgColor_ )
         self.setItemTextColour( self.index_, self.textColor_ )
         #self._dumpVariable()
@@ -100,7 +94,7 @@ class ElemFile( ElemBase ):
 
     def update( self ):
         ElemBase.update( self )
-        self.setStringItem( self.index_, COLUMN_INDEX_EXT, self.ext_ )
+        self.setStringItem( self.index_, Def.LIST_COL_INDEX_EXT, self.ext_ )
 
 class ElemDir( ElemBase ):
     """ ディレクトリエレメント

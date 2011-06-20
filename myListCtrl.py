@@ -7,6 +7,7 @@ import time
 
 from util import Util
 from element import *
+from define import Def
 
 class MyListCtrl( wx.ListCtrl ):
     """ ファイルリストGUI
@@ -34,9 +35,43 @@ class MyListCtrl( wx.ListCtrl ):
         self.Bind( wx.EVT_LIST_KEY_DOWN, self.OnKeyDown )
 
     def OnItemSelected( self, event ):
-        print "OnItemSelected !!!"
+        #print "OnItemSelected !!!"
+        pass
+
     def OnKeyDown( self, event ):
-        print "OnKeyDown !!!!" + str( event.GetKeyCode() )
+        #print "OnKeyDown !!!!" + str( event.GetKeyCode() )
+        keycode = event.GetKeyCode()
+        self.moveCursor( keycode )
+        self.executeCommand( keycode )
+
+    def moveCursor( self, keycode ):
+        """ カーソル移動 """
+        nowSel = self.GetFirstSelected()
+        itemCount = self.GetItemCount()
+        if keycode==Def.CORSOR_UP_KEYCODE:
+            self.Select( nowSel, False )
+            nowSel = (nowSel-1) if nowSel>0 else itemCount-1
+        elif keycode==Def.CORSOR_DOWN_KEYCODE:
+            self.Select( nowSel, False )
+            nowSel = (nowSel+1) % itemCount
+        self.Select( nowSel )
+        self.Focus( nowSel )
+
+    def executeCommand( self, keycode ):
+        """ いろんなコマンドを実行 """
+        focusedItemIndex = self.GetFocusedItem()
+        if keycode==Def.FILE_EDIT_KEYCODE:
+            cmd = "mvim --remote-silent %s" %( self.getItemAbsPath( focusedItemIndex ) )
+            Util.trace("file edit command( %s )" %(cmd) )
+            os.system( cmd )
+
+    def getItemAbsPath( self, itemId ):
+        """ Itemの絶対パスを取得 """
+        itemName = self.GetItem( itemId, Def.LIST_COL_INDEX_NAME )
+        name = itemName.GetText()
+        itemExt = self.GetItem( itemId, Def.LIST_COL_INDEX_EXT )
+        ext = itemExt.GetText()
+        return "%s/%s.%s" %( self.curDir_, name, ext )
 
     def changeDir( self, path ):
         """ カレントディレクトリを移動
