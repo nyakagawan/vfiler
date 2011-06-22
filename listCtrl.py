@@ -9,7 +9,7 @@ from util import Util
 from element import *
 from define import Def
 
-class MyListCtrl( wx.ListCtrl ):
+class ListCtrl( wx.ListCtrl ):
     """ ファイルリストGUI
     """
     def __init__( self, parent, id ):

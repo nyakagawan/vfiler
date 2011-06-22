@@ -4,13 +4,13 @@
 import os
 import wx
 
-from myListCtrl import MyListCtrl
+from listCtrl import ListCtrl
 
 ID_BUTTON = 100
 ID_EXIT = 200
 ID_SPLITTER = 300
 
-class FileHunter( wx.Frame ):
+class VFiler( wx.Frame ):
     def __init__( self, parent, id, title ):
         wx.Frame.__init__( self, parent, -1, title )
         self.Center()
@@ -18,15 +18,15 @@ class FileHunter( wx.Frame ):
         self.splitter = wx.SplitterWindow( self, ID_SPLITTER, style=wx.SP_BORDER )
         self.splitter.SetMinimumPaneSize( 50 )
 
-        p1 = MyListCtrl( self.splitter, -1 )
-        p2 = MyListCtrl( self.splitter, -1 )
+        p1 = ListCtrl( self.splitter, -1 )
+        p2 = ListCtrl( self.splitter, -1 )
         self.splitter.SplitVertically( p1, p2 )
         
         self.Bind( wx.EVT_SIZE, self.OnSize )
         self.Bind( wx.EVT_SPLITTER_DCLICK, self.OnDoubleClick, id=ID_SPLITTER )
 
         """ これが動かない...。なんでだろー？ """
-        self.RegisterHotKey( 100, wx.MOD_ALT, ord("t") )
+        self.RegisterHotKey( 100, wx.MOD_CONTROL, ord("t") )
         self.Bind( wx.EVT_HOTKEY, self.handleHotKey, id=100 )
 
         self.CreateWxMenu()
@@ -119,7 +119,7 @@ class FileHunter( wx.Frame ):
 
 
 app = wx.App( 0 )
-FileHunter( None, -1, "File Hunter" )
+VFiler( None, -1, "VFiler" )
 app.MainLoop()
 
 
