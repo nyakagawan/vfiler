@@ -16,6 +16,8 @@ class Def:
 
     FILE_EDIT_KEYCODE = ord("e")
     CANCEL_KEYCODE = ord("q")
+    COPY_KEYCODE = ord("c")
+    MOVE_KEYCODE = ord("m")
 
     LIST_COL_INDEX_NAME = 0
     LIST_COL_INDEX_EXT = 1

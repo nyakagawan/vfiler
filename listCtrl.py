@@ -15,6 +15,8 @@ class ListCtrl( wx.ListCtrl ):
     def __init__( self, parent, id, paneKind ):
         wx.ListCtrl.__init__( self, parent, id, style=wx.LC_REPORT )
         self.paneKind = paneKind
+        self.elemList = []
+
         self.initGui()
         self.changeDir( os.path.abspath( os.getcwd() ) )
 
@@ -25,6 +27,15 @@ class ListCtrl( wx.ListCtrl ):
 
     def getCurDir( self ):
         return self.curDir
+
+    def getElemList( self ):
+        return self.elemList
+    def getElemCount( self ):
+        return len( self.getElemList() )
+    def getElem( self, index ):
+        if index<self.getElemCount():
+            return self.getElemList()[ index ]
+        assert False, "elem list range over %d" %( index )
 
     def initGui( self ):
         self.InsertColumn( 0, 'Name' )
@@ -105,17 +116,32 @@ class ListCtrl( wx.ListCtrl ):
             os.system( cmd )
         elif keycode==Def.CANCEL_KEYCODE:
             self.getFrame().Close()
+        elif keycode==Def.COPY_KEYCODE:
+            self.copyElem()
+        elif keycode==Def.COPY_KEYCODE:
+            Util.trace( "!!! not implement" )
+
+    def copyElem( self ):
+        """ 選択中エレメントを非フォーカスペインのディレクトリへコピーする
+        """
+        focusedItemIndex = self.GetFocusedItem()
+        if self.getElemCount() and focusedItemIndex>=0:
+            forcusedElem = self.getElem( focusedItemIndex )
+            srcPath = forcusedElem.getAbsPath()
+            destPath = None
+            unfocusedPane = self.getFrame().getUnFocusedPane()
+            if unfocusedPane:
+                destPath = unfocusedPane.getCurDir()
+            if destPath and destPath!=os.path.dirname( srcPath ):
+                cmd = "cp -rf %s %s" %( srcPath, destPath )
+                Util.trace( cmd )
+                os.system( cmd )
 
     def getItemAbsPath( self, itemId ):
         """ Itemの絶対パスを取得
         """
-        itemName = self.GetItem( itemId, Def.LIST_COL_INDEX_NAME )
-        name = itemName.GetText()
-        itemExt = self.GetItem( itemId, Def.LIST_COL_INDEX_EXT )
-        ext = itemExt.GetText()
-        if ext!="":
-            ext = "." + ext
-        return "%s/%s%s" %( self.curDir, name, ext )
+        elem = self.getElem( itemId )
+        return elem.getAbsPath()
 
     def changeDir( self, path ):
         """ カレントディレクトリを移動
@@ -135,6 +161,7 @@ class ListCtrl( wx.ListCtrl ):
         """ ファイルリストを更新
         """
         self.removeFileList()
+        self.elemList = []
 
         Util.trace( "curDir [%s] updateFileList" %(curDir) )
         listdir = os.listdir( curDir )
@@ -148,6 +175,7 @@ class ListCtrl( wx.ListCtrl ):
                 Util.trace( "add FILE " + e )
                 elem = ElemFile( iFile, self, e )
             elem.update()
+            self.elemList.append( elem )
             iFile += 1
 
 

@@ -32,13 +32,7 @@ class VFiler( wx.Frame ):
         self.Bind( wx.EVT_SIZE, self.OnSize )
         self.Bind( wx.EVT_SPLITTER_DCLICK, self.OnDoubleClick, id=ID_SPLITTER )
 
-#        """ これが動かない...。なんでだろー？ """
-#        self.RegisterHotKey( 100, wx.MOD_CONTROL, ord("t") )
-#        self.Bind( wx.EVT_HOTKEY, self.handleHotKey, id=100 )
-
         self.CreateWxMenu()
-#        self.CreateWxToolBar()
-#        self.CreateWxFunctionButton()
 
         self.sizer = wx.BoxSizer( wx.VERTICAL )
         self.sizer.Add( self.splitter, 1, wx.EXPAND )
@@ -56,6 +50,17 @@ class VFiler( wx.Frame ):
 
     def getPane( self, paneKind ):
         return self.paneDict[ paneKind ]
+    def getFocusedPane( self ):
+        focusedItem = self.FindFocus()
+        if focusedItem in self.paneDict.values():
+            return focusedItem
+        return None
+    def getUnFocusedPane( self ):
+        focusedPane = self.getFocusedPane()
+        for pane in self.paneDict.values():
+            if pane!=focusedPane:
+                return pane
+        return None
 
     def CreateWxMenu( self ):
         filemenu = wx.Menu()

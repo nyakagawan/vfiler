@@ -19,6 +19,7 @@ class ElemBase( object ):
     """
     def __init__( self, listCtrl ):
         self.index_ = 0
+        self.absPath = ""
         self.name_ = ""
         self.size_ = 0
         self.mtime_ = 0
@@ -28,6 +29,10 @@ class ElemBase( object ):
 
     def setIndex( self, index ):
         self.index_ = index
+    def getAbsPath( self ):
+        return self.absPath
+    def setAbsPath( self, absPath ):
+        self.absPath = absPath
     def setName( self, name ):
         self.name_ = name
     def setSize( self, size ):
@@ -79,10 +84,10 @@ class ElemFile( ElemBase ):
     def __init__( self, index, listCtrl, fileName ):
         ElemBase.__init__( self, listCtrl )
 
-        self.absPath = "%s/%s" %( listCtrl.getCurDir(), fileName )
-        self.ext_ = ""
-        self.setIndex( index )
+        ext = ""
         ( name, ext ) = os.path.splitext( fileName )
+        self.setAbsPath( "%s/%s" %( listCtrl.getCurDir(), fileName ) )
+        self.setIndex( index )
         self.setName( name )
         self.setExt( ext[ 1: ] )
         self.setSize( os.path.getsize( self.absPath ) )
@@ -103,7 +108,7 @@ class ElemDir( ElemBase ):
     def __init__( self, index, listCtrl, dirName ):
         ElemBase.__init__( self, listCtrl )
 
-        self.absPath = "%s/%s" %( listCtrl.getCurDir(), dirName )
+        self.setAbsPath( "%s/%s" %( listCtrl.getCurDir(), dirName ) )
         self.setIndex( index )
         self.setName( dirName )
         self.setSize( os.path.getsize( self.absPath ) )
