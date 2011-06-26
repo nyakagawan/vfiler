@@ -79,13 +79,14 @@ class ElemFile( ElemBase ):
     def __init__( self, index, listCtrl, fileName ):
         ElemBase.__init__( self, listCtrl )
 
+        self.absPath = "%s/%s" %( listCtrl.getCurDir(), fileName )
         self.ext_ = ""
         self.setIndex( index )
         ( name, ext ) = os.path.splitext( fileName )
         self.setName( name )
         self.setExt( ext[ 1: ] )
-        self.setSize( os.path.getsize( fileName ) )
-        self.setMtime( os.path.getmtime( fileName ) )
+        self.setSize( os.path.getsize( self.absPath ) )
+        self.setMtime( os.path.getmtime( self.absPath ) )
         self.setBgColor( ITEM_BG_COLOR )
         self.setTextColor( ITEM_TEXT_COLOR )
 
@@ -102,10 +103,11 @@ class ElemDir( ElemBase ):
     def __init__( self, index, listCtrl, dirName ):
         ElemBase.__init__( self, listCtrl )
 
+        self.absPath = "%s/%s" %( listCtrl.getCurDir(), dirName )
         self.setIndex( index )
         self.setName( dirName )
-        self.setSize( os.path.getsize( dirName ) )
-        self.setMtime( os.path.getmtime( dirName ) )
+        self.setSize( os.path.getsize( self.absPath ) )
+        self.setMtime( os.path.getmtime( self.absPath ) )
         self.setBgColor( ITEM_BG_COLOR )
         self.setTextColor( ITEM_TEXT_COLOR_DIR )
         self.setListCtrl( listCtrl )

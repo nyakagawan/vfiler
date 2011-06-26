@@ -5,6 +5,7 @@ import os
 import wx
 
 from listCtrl import ListCtrl
+from define import Def
 
 ID_BUTTON = 100
 ID_EXIT = 200
@@ -18,16 +19,22 @@ class VFiler( wx.Frame ):
         self.splitter = wx.SplitterWindow( self, ID_SPLITTER, style=wx.SP_BORDER )
         self.splitter.SetMinimumPaneSize( 50 )
 
-        p1 = ListCtrl( self.splitter, -1 )
-        p2 = ListCtrl( self.splitter, -1 )
-        self.splitter.SplitVertically( p1, p2 )
+        paneLeft = ListCtrl( self.splitter, -1, Def.PANE_KIND_LEFT )
+        paneRight = ListCtrl( self.splitter, -1, Def.PANE_KIND_RIGHT )
+        self.splitter.SplitVertically( paneLeft, paneRight )
+
+        # 最初っからリストにフォーカスさせとく
+        paneLeft.SetFocus()
+        self.paneDict = {}
+        self.paneDict[ Def.PANE_KIND_LEFT ] = paneLeft
+        self.paneDict[ Def.PANE_KIND_RIGHT ] = paneRight
         
         self.Bind( wx.EVT_SIZE, self.OnSize )
         self.Bind( wx.EVT_SPLITTER_DCLICK, self.OnDoubleClick, id=ID_SPLITTER )
 
-        """ これが動かない...。なんでだろー？ """
-        self.RegisterHotKey( 100, wx.MOD_CONTROL, ord("t") )
-        self.Bind( wx.EVT_HOTKEY, self.handleHotKey, id=100 )
+#        """ これが動かない...。なんでだろー？ """
+#        self.RegisterHotKey( 100, wx.MOD_CONTROL, ord("t") )
+#        self.Bind( wx.EVT_HOTKEY, self.handleHotKey, id=100 )
 
         self.CreateWxMenu()
 #        self.CreateWxToolBar()
@@ -46,8 +53,9 @@ class VFiler( wx.Frame ):
         self.sb.SetStatusText( os.getcwd() )
         self.Center()
         self.Show( True )
-    def handleHotKey( self, event ):
-        print "HOTHOT"
+
+    def getPane( self, paneKind ):
+        return self.paneDict[ paneKind ]
 
     def CreateWxMenu( self ):
         filemenu = wx.Menu()

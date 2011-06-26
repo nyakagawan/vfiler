@@ -12,11 +12,19 @@ from define import Def
 class ListCtrl( wx.ListCtrl ):
     """ ファイルリストGUI
     """
-    def __init__( self, parent, id ):
+    def __init__( self, parent, id, paneKind ):
         wx.ListCtrl.__init__( self, parent, id, style=wx.LC_REPORT )
+        self.paneKind = paneKind
         self.initGui()
-        self.curDir_ = os.path.abspath( os.getcwd() )
-        self.updateFileList( self.curDir_ )
+        self.changeDir( os.path.abspath( os.getcwd() ) )
+
+    def getFrame( self ):
+        """ Frameオブジェクトを得る
+        """
+        return self.GetParent().GetParent()
+
+    def getCurDir( self ):
+        return self.curDir
 
     def initGui( self ):
         self.InsertColumn( 0, 'Name' )
@@ -39,13 +47,31 @@ class ListCtrl( wx.ListCtrl ):
         pass
 
     def OnKeyDown( self, event ):
+        """ キーダウンイベントハンドラ
+        """
         #print "OnKeyDown !!!!" + str( event.GetKeyCode() )
         keycode = event.GetKeyCode()
+        self.moveDir( keycode )
         self.moveCursor( keycode )
+        self.changeFocus( keycode )
         self.executeCommand( keycode )
 
+    def moveDir( self, keycode ):
+        """ Key入力によってディレクトリを移動する
+        """
+        nextPath = ""
+        if keycode==Def.MOVE_DIR_UP_KEYCODE:
+            nextPath = self.curDir + "/.."
+        if keycode==Def.MOVE_DIR_DOWN_KEYCODE:
+            nextPath = self.getItemAbsPath( self.GetFocusedItem() )
+        if os.path.isdir( nextPath ):
+            Util.trace( "moveDir %s -> %s" %(self.getCurDir(), nextPath) )
+            nextPath = os.path.normpath( nextPath )
+            self.changeDir( nextPath )
+
     def moveCursor( self, keycode ):
-        """ カーソル移動 """
+        """ カーソル移動
+        """
         nowSel = self.GetFirstSelected()
         itemCount = self.GetItemCount()
         if keycode==Def.CORSOR_UP_KEYCODE:
@@ -54,42 +80,72 @@ class ListCtrl( wx.ListCtrl ):
         elif keycode==Def.CORSOR_DOWN_KEYCODE:
             self.Select( nowSel, False )
             nowSel = (nowSel+1) % itemCount
-        self.Select( nowSel )
-        self.Focus( nowSel )
+        if nowSel!=-1:
+            self.Select( nowSel )
+            self.Focus( nowSel )
+
+    def changeFocus( self, keycode ):
+        """ Key入力によって、フォーカスしているペインをかえる
+        """
+        changePane = Def.PANE_KIND_INVALID
+        if keycode==Def.CORSOR_LEFT_KEYCODE:
+            changePane = Def.PANE_KIND_LEFT
+        elif keycode==Def.CORSOR_RIGHT_KEYCODE:
+            changePane = Def.PANE_KIND_RIGHT
+        if changePane!=Def.PANE_KIND_INVALID and self.paneKind!=changePane:
+            self.getFrame().getPane( changePane ).SetFocus()
 
     def executeCommand( self, keycode ):
-        """ いろんなコマンドを実行 """
+        """ いろんなコマンドを実行
+        """
         focusedItemIndex = self.GetFocusedItem()
         if keycode==Def.FILE_EDIT_KEYCODE:
             cmd = "mvim --remote-silent %s" %( self.getItemAbsPath( focusedItemIndex ) )
             Util.trace("file edit command( %s )" %(cmd) )
             os.system( cmd )
+        elif keycode==Def.CANCEL_KEYCODE:
+            self.getFrame().Close()
 
     def getItemAbsPath( self, itemId ):
-        """ Itemの絶対パスを取得 """
+        """ Itemの絶対パスを取得
+        """
         itemName = self.GetItem( itemId, Def.LIST_COL_INDEX_NAME )
         name = itemName.GetText()
         itemExt = self.GetItem( itemId, Def.LIST_COL_INDEX_EXT )
         ext = itemExt.GetText()
-        return "%s/%s.%s" %( self.curDir_, name, ext )
+        if ext!="":
+            ext = "." + ext
+        return "%s/%s%s" %( self.curDir, name, ext )
 
     def changeDir( self, path ):
         """ カレントディレクトリを移動
         """
-#        path = os.path.abspath( path )
-#        if not self.curDir_:
-#            self.curDir_ = ElemDir( -1, self, path )
+        path = os.path.abspath( path )
+        if os.path.isdir( path ):
+            self.curDir = path
+            self.updateFileList( self.curDir )
   
+    def removeFileList( self ):
+        """ ファイルリストを削除
+        """
+        Util.trace( "removeFileList" )
+        self.DeleteAllItems()
+
     def updateFileList( self, curDir ):
-        Util.trace( "curDir [%s]. updateFileList" %(curDir) )
-        elems = os.listdir( curDir )
+        """ ファイルリストを更新
+        """
+        self.removeFileList()
+
+        Util.trace( "curDir [%s] updateFileList" %(curDir) )
+        listdir = os.listdir( curDir )
         iFile = 0
-        for e in elems:
-            if os.path.isdir( e ):
-                Util.trace( "adddir " + e )
+        for e in listdir:
+            absPath = "%s/%s" %( curDir, e )
+            if os.path.isdir( absPath ):
+                Util.trace( "add DIR " + e )
                 elem = ElemDir( iFile, self, e )
             else:
-                Util.trace( "addfile " + e )
+                Util.trace( "add FILE " + e )
                 elem = ElemFile( iFile, self, e )
             elem.update()
             iFile += 1
