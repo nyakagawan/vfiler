@@ -118,8 +118,10 @@ class ListCtrl( wx.ListCtrl ):
             self.getFrame().Close()
         elif keycode==Def.COPY_KEYCODE:
             self.copyElem()
-        elif keycode==Def.COPY_KEYCODE:
+        elif keycode==Def.MOVE_KEYCODE:
             Util.trace( "!!! not implement" )
+        elif keycode==Def.DELETE_KEYCODE:
+            self.deleteElem()
 
     def copyElem( self ):
         """ 選択中エレメントを非フォーカスペインのディレクトリへコピーする
@@ -136,6 +138,23 @@ class ListCtrl( wx.ListCtrl ):
                 cmd = "cp -rf %s %s" %( srcPath, destPath )
                 Util.trace( cmd )
                 os.system( cmd )
+
+    def deleteElem( self ):
+        """ 選択中エレメントをファイルリストから削除する
+        """
+        focusedItemIndex = self.GetFocusedItem()
+        if self.getElemCount() and focusedItemIndex>=0:
+            forcusedElem = self.getElem( focusedItemIndex )
+            # elemListから削除
+            self.elemList.remove( forcusedElem )
+            # GUIから削除
+            self.DeleteItem( focusedItemIndex )
+            # FileSystemから削除
+            cmd = "rm -rf %s" %( forcusedElem.getAbsPath() )
+            Util.trace( cmd )
+            os.system( cmd )
+            # 両方のペインのファイルリスト更新
+            self.getFrame().updateFileListBoth()
 
     def getItemAbsPath( self, itemId ):
         """ Itemの絶対パスを取得
@@ -157,9 +176,11 @@ class ListCtrl( wx.ListCtrl ):
         Util.trace( "removeFileList" )
         self.DeleteAllItems()
 
-    def updateFileList( self, curDir ):
+    def updateFileList( self, curDir=None ):
         """ ファイルリストを更新
         """
+        if curDir==None:
+            curDir = self.curDir
         self.removeFileList()
         self.elemList = []
 

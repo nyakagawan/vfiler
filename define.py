@@ -18,6 +18,7 @@ class Def:
     CANCEL_KEYCODE = ord("q")
     COPY_KEYCODE = ord("c")
     MOVE_KEYCODE = ord("m")
+    DELETE_KEYCODE = ord("d")
 
     LIST_COL_INDEX_NAME = 0
     LIST_COL_INDEX_EXT = 1

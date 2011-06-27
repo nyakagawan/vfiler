@@ -62,6 +62,12 @@ class VFiler( wx.Frame ):
                 return pane
         return None
 
+    def updateFileList( self, paneKind ):
+        self.getPane( paneKind ).updateFileList()
+    def updateFileListBoth( self ):
+        self.updateFileList( Def.PANE_KIND_LEFT )
+        self.updateFileList( Def.PANE_KIND_RIGHT )
+
     def CreateWxMenu( self ):
         filemenu = wx.Menu()
         filemenu.Append( ID_EXIT, "E&xit", "Terminate the program" )
