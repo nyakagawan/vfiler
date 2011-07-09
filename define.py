@@ -15,10 +15,11 @@ class Def:
     MOVE_DIR_DOWN_KEYCODE = ord("d")
 
     FILE_EDIT_KEYCODE = ord("e")
-    CANCEL_KEYCODE = ord("q")
+    QUIT_KEYCODE = ord("q")
     COPY_KEYCODE = ord("c")
     MOVE_KEYCODE = ord("m")
     DELETE_KEYCODE = ord("d")
+    SEARCH_KEYCODE = ord("/")
 
     LIST_COL_INDEX_NAME = 0
     LIST_COL_INDEX_EXT = 1

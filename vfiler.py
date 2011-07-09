@@ -5,6 +5,7 @@ import os
 import wx
 
 from listCtrl import ListCtrl
+from textCtrl import TextCtrl
 from define import Def
 
 ID_SPLITTER_LISTCTRL = 300
@@ -22,7 +23,8 @@ class VFiler( wx.Frame ):
         self.splitTextCtrl = wx.SplitterWindow( self, ID_SPLITTER_TEXTCTRL, style=wx.SP_BORDER )
         self.splitTextCtrl.SetMinimumPaneSize( 50 )
 
-        self.textCtrl = wx.TextCtrl( self.splitTextCtrl, ID_TEXTCTRL_RIGHT, size=(800,20) )
+        self.textCtrl = TextCtrl( self.splitTextCtrl, ID_TEXTCTRL_RIGHT, self )
+        self.textCtrl.SetSize( wx.Size(800,10) )
 
         # ListCtrlを分けるSplitterを作る
         self.splitListCtrl = wx.SplitterWindow( self.splitTextCtrl, ID_SPLITTER_LISTCTRL, style=wx.SP_BORDER )
@@ -36,7 +38,7 @@ class VFiler( wx.Frame ):
         self.splitTextCtrl.SplitHorizontally( self.splitListCtrl, self.textCtrl )
 
         # 最初っからリストにフォーカスさせとく
-        paneLeft.SetFocus()
+        self.setFocusedPane( paneLeft )
         self.paneDict = {}
         self.paneDict[ Def.PANE_KIND_LEFT ] = paneLeft
         self.paneDict[ Def.PANE_KIND_RIGHT ] = paneRight
@@ -57,19 +59,22 @@ class VFiler( wx.Frame ):
         self.Center()
         self.Show( True )
 
+
     def getPane( self, paneKind ):
         return self.paneDict[ paneKind ]
+    def setFocusedPane( self, pane ):
+        self.focusedPane = pane
+        self.focusedPane.SetFocus()
     def getFocusedPane( self ):
-        focusedItem = self.FindFocus()
-        if focusedItem in self.paneDict.values():
-            return focusedItem
-        return None
+        return self.focusedPane
     def getUnFocusedPane( self ):
-        focusedPane = self.getFocusedPane()
         for pane in self.paneDict.values():
-            if pane!=focusedPane:
+            if pane!=self.focusedPane:
                 return pane
         return None
+
+    def getTextCtrl( self ):
+        return self.textCtrl
 
     def updateFileList( self, paneKind ):
         self.getPane( paneKind ).updateFileList()

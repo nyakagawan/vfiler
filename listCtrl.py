@@ -112,7 +112,7 @@ class ListCtrl( wx.ListCtrl ):
         elif keycode==Def.CORSOR_RIGHT_KEYCODE:
             changePane = Def.PANE_KIND_RIGHT
         if changePane!=Def.PANE_KIND_INVALID and self.paneKind!=changePane:
-            self.getFrame().getPane( changePane ).SetFocus()
+            self.getFrame().setFocusedPane( self.getFrame().getPane( changePane ) )
 
     def executeCommand( self, keycode ):
         """ いろんなコマンドを実行
@@ -122,7 +122,7 @@ class ListCtrl( wx.ListCtrl ):
             cmd = "mvim --remote-silent %s" %( self.getItemAbsPath( focusedItemIndex ) )
             Util.trace("file edit command( %s )" %(cmd) )
             os.system( cmd )
-        elif keycode==Def.CANCEL_KEYCODE:
+        elif keycode==Def.QUIT_KEYCODE:
             self.getFrame().Close()
         elif keycode==Def.COPY_KEYCODE:
             self.copyElem()
@@ -130,6 +130,8 @@ class ListCtrl( wx.ListCtrl ):
             Util.trace( "!!! not implement" )
         elif keycode==Def.DELETE_KEYCODE:
             self.deleteElem()
+        elif keycode==Def.SEARCH_KEYCODE:
+            self.searchElem()
 
     def copyElem( self ):
         """ 選択中エレメントを非フォーカスペインのディレクトリへコピーする
@@ -163,6 +165,11 @@ class ListCtrl( wx.ListCtrl ):
             os.system( cmd )
             # 両方のペインのファイルリスト更新
             self.getFrame().updateFileListBoth()
+    
+    def searchElem( self ):
+        """ インクリメンタルサーチ
+        """
+        self.getFrame().getTextCtrl().SetFocus()
 
     def getItemAbsPath( self, itemId ):
         """ Itemの絶対パスを取得
