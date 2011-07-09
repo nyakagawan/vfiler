@@ -41,14 +41,14 @@ class VFiler( wx.Frame ):
 
     def initGui( self, textCtrlClass=None ):
         # まずファイラー下のTextCtrlと上の縦Splitterを分けるSplitterを作る
-        self.splitTextCtrl = wx.SplitterWindow( self, ID_SPLITTER_TEXTCTRL, style=wx.SP_BORDER )
-        self.splitTextCtrl.SetMinimumPaneSize( 50 )
+        self.splitTextCtrl = wx.SplitterWindow( self, ID_SPLITTER_TEXTCTRL )
+        self.splitTextCtrl.SetMinimumPaneSize( 20 )
 
         self.textCtrl = TextCtrl( self.splitTextCtrl, ID_TEXTCTRL, self )
-        self.textCtrl.SetSize( wx.Size(800,10) )
+        self.textCtrl.SetSize( wx.Size(800,20) )
 
         # ListCtrlを分けるSplitterを作る
-        self.splitListCtrl = wx.SplitterWindow( self.splitTextCtrl, ID_SPLITTER_LISTCTRL, style=wx.SP_BORDER )
+        self.splitListCtrl = wx.SplitterWindow( self.splitTextCtrl, ID_SPLITTER_LISTCTRL )
         self.splitListCtrl.SetMinimumPaneSize( 50 )
 
         paneLeft = ListCtrl( self.splitListCtrl, ID_LISTCTRL_LEFT, Def.PANE_KIND_LEFT, self )
