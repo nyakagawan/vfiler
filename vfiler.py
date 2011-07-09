@@ -7,44 +7,53 @@ import wx
 from listCtrl import ListCtrl
 from define import Def
 
-ID_BUTTON = 100
-ID_EXIT = 200
-ID_SPLITTER = 300
+ID_SPLITTER_LISTCTRL = 300
+ID_SPLITTER_TEXTCTRL = 301
+ID_LISTCTRL_LEFT = 500
+ID_LISTCTRL_RIGHT = 501
+ID_TEXTCTRL_RIGHT = 505
 
 class VFiler( wx.Frame ):
     def __init__( self, parent, id, title ):
         wx.Frame.__init__( self, parent, -1, title )
         self.Center()
 
-        self.splitter = wx.SplitterWindow( self, ID_SPLITTER, style=wx.SP_BORDER )
-        self.splitter.SetMinimumPaneSize( 50 )
+        # まずファイラー下のTextCtrlと上の縦Splitterを分けるSplitterを作る
+        self.splitTextCtrl = wx.SplitterWindow( self, ID_SPLITTER_TEXTCTRL, style=wx.SP_BORDER )
+        self.splitTextCtrl.SetMinimumPaneSize( 50 )
 
-        paneLeft = ListCtrl( self.splitter, -1, Def.PANE_KIND_LEFT )
-        paneRight = ListCtrl( self.splitter, -1, Def.PANE_KIND_RIGHT )
-        self.splitter.SplitVertically( paneLeft, paneRight )
+        self.textCtrl = wx.TextCtrl( self.splitTextCtrl, ID_TEXTCTRL_RIGHT, size=(800,20) )
+
+        # ListCtrlを分けるSplitterを作る
+        self.splitListCtrl = wx.SplitterWindow( self.splitTextCtrl, ID_SPLITTER_LISTCTRL, style=wx.SP_BORDER )
+        self.splitListCtrl.SetMinimumPaneSize( 50 )
+
+        paneLeft = ListCtrl( self.splitListCtrl, ID_LISTCTRL_LEFT, Def.PANE_KIND_LEFT, self )
+        paneRight = ListCtrl( self.splitListCtrl, ID_LISTCTRL_RIGHT, Def.PANE_KIND_RIGHT, self )
+        self.splitListCtrl.SplitVertically( paneLeft, paneRight )
+
+        # 上のSplitterと下のTextCtrlをSplitte
+        self.splitTextCtrl.SplitHorizontally( self.splitListCtrl, self.textCtrl )
 
         # 最初っからリストにフォーカスさせとく
         paneLeft.SetFocus()
         self.paneDict = {}
         self.paneDict[ Def.PANE_KIND_LEFT ] = paneLeft
         self.paneDict[ Def.PANE_KIND_RIGHT ] = paneRight
-        
-        self.Bind( wx.EVT_SIZE, self.OnSize )
-        self.Bind( wx.EVT_SPLITTER_DCLICK, self.OnDoubleClick, id=ID_SPLITTER )
 
-        self.CreateWxMenu()
+        self.Bind( wx.EVT_SIZE, self.OnSize )
 
         self.sizer = wx.BoxSizer( wx.VERTICAL )
-        self.sizer.Add( self.splitter, 1, wx.EXPAND )
-        #self.sizer.Add( self.sizer2, 0, wx.EXPAND )
+        self.sizer.Add( self.splitTextCtrl, 1, wx.EXPAND )
         self.SetSizer( self.sizer )
 
         #size = wx.DisplaySize()
-        size = (800,400)
+        size = (1000,400)
         self.SetSize( size )
+        self.setDefaultSashPosition()
 
-        self.sb = self.CreateStatusBar()
-        self.sb.SetStatusText( os.getcwd() )
+#        self.sb = self.CreateStatusBar()
+#        self.sb.SetStatusText( os.getcwd() )
         self.Center()
         self.Show( True )
 
@@ -68,24 +77,10 @@ class VFiler( wx.Frame ):
         self.updateFileList( Def.PANE_KIND_LEFT )
         self.updateFileList( Def.PANE_KIND_RIGHT )
 
-    def CreateWxMenu( self ):
-        filemenu = wx.Menu()
-        filemenu.Append( ID_EXIT, "E&xit", "Terminate the program" )
-        editmenu = wx.Menu()
-        netmenu = wx.Menu()
-        showmenu = wx.Menu()
-        configmenu = wx.Menu()
-        helpmenu = wx.Menu()
-
-        menuBar = wx.MenuBar()
-        menuBar.Append( filemenu, "&File" )
-        menuBar.Append( editmenu, "&Edit" )
-        menuBar.Append( netmenu, "&Net" )
-        menuBar.Append( showmenu, "&Show" )
-        menuBar.Append( configmenu, "&Config" )
-        menuBar.Append( helpmenu, "&Help" )
-        self.SetMenuBar( menuBar )
-        self.Bind( wx.EVT_MENU, self.OnExit, id=ID_EXIT )
+    def setDefaultSashPosition( self ):
+        size = self.GetSize()
+        self.splitListCtrl.SetSashPosition( size.x / 2 )
+        self.splitTextCtrl.SetSashPosition( size.y - 20 )
 
     def CreateWxToolBar( self ):
         tb = self.CreateToolBar( wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT )
@@ -100,41 +95,12 @@ class VFiler( wx.Frame ):
         tb.AddSimpleTool( 70, wx.Bitmap( 'images/help.png' ), 'Help' )
         tb.Realize()
 
-    def CreateWxFunctionButton( self ):
-        self.sizer2 = wx.BoxSizer( wx.HORIZONTAL )
-
-        button1 = wx.Button( self, ID_BUTTON + 1, "F3 View" )
-        button2 = wx.Button( self, ID_BUTTON + 2, "F4 Edit" )
-        button3 = wx.Button( self, ID_BUTTON + 3, "F5 Copy" )
-        button4 = wx.Button( self, ID_BUTTON + 4, "F6 Move" )
-        button5 = wx.Button( self, ID_BUTTON + 5, "F7 Mkdir" )
-        button6 = wx.Button( self, ID_BUTTON + 6, "F8 Delte" )
-        button7 = wx.Button( self, ID_BUTTON + 7, "F9 Rename" )
-        button8 = wx.Button( self, ID_EXIT, "F10 Quit" )
-
-        self.sizer2.Add( button1, 1, wx.EXPAND )
-        self.sizer2.Add( button2, 1, wx.EXPAND )
-        self.sizer2.Add( button3, 1, wx.EXPAND )
-        self.sizer2.Add( button4, 1, wx.EXPAND )
-        self.sizer2.Add( button5, 1, wx.EXPAND )
-        self.sizer2.Add( button6, 1, wx.EXPAND )
-        self.sizer2.Add( button7, 1, wx.EXPAND )
-        self.sizer2.Add( button8, 1, wx.EXPAND )
-
-        self.Bind( wx.EVT_BUTTON, self.OnExit, id=ID_EXIT )
-
     def OnExit( self, e ):
         self.Close( True )
 
     def OnSize( self, event ):
-        size = self.GetSize()
-        self.splitter.SetSashPosition( size.x / 2 )
-        self.sb.SetStatusText( os.getcwd() )
+        self.setDefaultSashPosition()
         event.Skip()
-
-    def OnDoubleClick( self, event ):
-        size = self.GetSize()
-        self.splitter.SetSashPosition( size.x / 2 )
 
 
 app = wx.App( 0 )

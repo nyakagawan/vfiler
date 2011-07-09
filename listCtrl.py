@@ -12,21 +12,29 @@ from define import Def
 class ListCtrl( wx.ListCtrl ):
     """ ファイルリストGUI
     """
-    def __init__( self, parent, id, paneKind ):
+    def __init__( self, parent, id, paneKind, frame ):
         wx.ListCtrl.__init__( self, parent, id, style=wx.LC_REPORT )
         self.paneKind = paneKind
         self.elemList = []
+        self.frame = frame
 
         self.initGui()
         self.changeDir( os.path.abspath( os.getcwd() ) )
+        self.Bind( wx.EVT_CHILD_FOCUS, self.OnChildFocus )
 
     def getFrame( self ):
         """ Frameオブジェクトを得る
         """
-        return self.GetParent().GetParent()
+        #return self.GetParent().GetParent()
+        return self.frame
 
     def getCurDir( self ):
         return self.curDir
+
+    def OnChildFocus( self, event ):
+        """ http://d.hatena.ne.jp/h1mesuke/20090429/p1 この現象に対応するため
+        """
+        pass
 
     def getElemList( self ):
         return self.elemList
@@ -43,10 +51,10 @@ class ListCtrl( wx.ListCtrl ):
         self.InsertColumn( 2, 'Size', wx.LIST_FORMAT_RIGHT )
         self.InsertColumn( 3, 'Modified' )
 
-        self.SetColumnWidth( 0, 220 )
+        self.SetColumnWidth( 0, 200 )
         self.SetColumnWidth( 1, 70 )
         self.SetColumnWidth( 2, 100 )
-        self.SetColumnWidth( 3, 420 )
+        self.SetColumnWidth( 3, 140 )
 
         self.SetBackgroundColour( BG_COLOR )
 
