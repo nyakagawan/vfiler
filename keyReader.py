@@ -12,6 +12,8 @@ class KeyReader( object ):
     def __init__( self, event ):
         self.keycode = event.GetKeyCode()
         self.event = event
+    def getKeyCode(self):
+        return self.keycode
 
 
     def cursorUp( self ):

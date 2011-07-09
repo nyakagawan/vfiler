@@ -12,18 +12,39 @@ ID_SPLITTER_LISTCTRL = 300
 ID_SPLITTER_TEXTCTRL = 301
 ID_LISTCTRL_LEFT = 500
 ID_LISTCTRL_RIGHT = 501
-ID_TEXTCTRL_RIGHT = 505
+ID_TEXTCTRL = 505
 
 class VFiler( wx.Frame ):
     def __init__( self, parent, id, title ):
         wx.Frame.__init__( self, parent, -1, title )
         self.Center()
 
+        self.Bind( wx.EVT_SIZE, self.OnSize )
+
+        self.splitTextCtrl = None
+        self.textCtrl = None
+        self.splitListCtrl = None
+        self.paneDict = {}
+        self.paneDict[ Def.PANE_KIND_LEFT ] = None
+        self.paneDict[ Def.PANE_KIND_RIGHT ] = None
+        self.sizer = None
+
+        self.initGui()
+
+        #size = wx.DisplaySize()
+        size = (1000,400)
+        self.SetSize( size )
+        self.setDefaultSashPosition()
+
+        self.Center()
+        self.Show( True )
+
+    def initGui( self, textCtrlClass=None ):
         # まずファイラー下のTextCtrlと上の縦Splitterを分けるSplitterを作る
         self.splitTextCtrl = wx.SplitterWindow( self, ID_SPLITTER_TEXTCTRL, style=wx.SP_BORDER )
         self.splitTextCtrl.SetMinimumPaneSize( 50 )
 
-        self.textCtrl = TextCtrl( self.splitTextCtrl, ID_TEXTCTRL_RIGHT, self )
+        self.textCtrl = TextCtrl( self.splitTextCtrl, ID_TEXTCTRL, self )
         self.textCtrl.SetSize( wx.Size(800,10) )
 
         # ListCtrlを分けるSplitterを作る
@@ -39,25 +60,13 @@ class VFiler( wx.Frame ):
 
         # 最初っからリストにフォーカスさせとく
         self.setFocusedPane( paneLeft )
-        self.paneDict = {}
         self.paneDict[ Def.PANE_KIND_LEFT ] = paneLeft
         self.paneDict[ Def.PANE_KIND_RIGHT ] = paneRight
 
-        self.Bind( wx.EVT_SIZE, self.OnSize )
-
+        # Sizerを設定
         self.sizer = wx.BoxSizer( wx.VERTICAL )
         self.sizer.Add( self.splitTextCtrl, 1, wx.EXPAND )
         self.SetSizer( self.sizer )
-
-        #size = wx.DisplaySize()
-        size = (1000,400)
-        self.SetSize( size )
-        self.setDefaultSashPosition()
-
-#        self.sb = self.CreateStatusBar()
-#        self.sb.SetStatusText( os.getcwd() )
-        self.Center()
-        self.Show( True )
 
 
     def getPane( self, paneKind ):

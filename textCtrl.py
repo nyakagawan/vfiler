@@ -29,6 +29,11 @@ class TextCtrl( wx.TextCtrl ):
         if kr.cancel():
             # ESC押されたらListCtrlにフォーカスを戻す
             self.getFrame().setFocusedPane( self.getFrame().getFocusedPane() )
+        else:
+            # インクリメンタルサーチ結果を更新する
+            self.EmulateKeyPress( event )
+            self.getFrame().getFocusedPane().updateIncSearch( self.GetLineText(0) )
+            return
         event.Skip()
 
     def OnFocus( self, event ):

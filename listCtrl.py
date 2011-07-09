@@ -214,6 +214,12 @@ class ListCtrl( wx.ListCtrl ):
             self.elemList.append( elem )
             iFile += 1
 
+    def updateIncSearch( self, searchWord ):
+        """ 検索ワードを受け取って、Incremental検索結果を更新
+        """
+        print "search of " + searchWord
+        pass
+
 
 
 
