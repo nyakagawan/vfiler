@@ -55,7 +55,7 @@ class KeyReader( object ):
         return True if self.keycode==Def.SEARCH_KEYCODE else False
 
     def cancel( self ):
-        if self.event.GetModifiers()==wx.MOD_CONTROL and self.keycode==ord("["):
+        if self.event.HasModifiers() and self.event.GetModifiers()==wx.MOD_CONTROL and self.keycode==ord("["):
             return True
         if self.keycode==wx.WXK_ESCAPE:
             return True

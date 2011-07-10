@@ -6,19 +6,19 @@ class Def:
     PANE_KIND_LEFT = 0
     PANE_KIND_RIGHT = 1
 
-    CORSOR_UP_KEYCODE = ord("k")
-    CORSOR_DOWN_KEYCODE = ord("j")
-    CORSOR_LEFT_KEYCODE = ord("h")
-    CORSOR_RIGHT_KEYCODE = ord("l")
+    CORSOR_UP_KEYCODE = ord("K")
+    CORSOR_DOWN_KEYCODE = ord("J")
+    CORSOR_LEFT_KEYCODE = ord("H")
+    CORSOR_RIGHT_KEYCODE = ord("L")
 
-    MOVE_DIR_UP_KEYCODE = ord("u")
-    MOVE_DIR_DOWN_KEYCODE = ord("d")
+    MOVE_DIR_UP_KEYCODE = ord("U")
+    MOVE_DIR_DOWN_KEYCODE = ord("D")
 
-    FILE_EDIT_KEYCODE = ord("e")
-    QUIT_KEYCODE = ord("q")
-    COPY_KEYCODE = ord("c")
-    MOVE_KEYCODE = ord("m")
-    DELETE_KEYCODE = ord("d")
+    FILE_EDIT_KEYCODE = ord("E")
+    QUIT_KEYCODE = ord("Q")
+    COPY_KEYCODE = ord("C")
+    MOVE_KEYCODE = ord("M")
+    DELETE_KEYCODE = ord("D")
     SEARCH_KEYCODE = ord("/")
 
     LIST_COL_INDEX_NAME = 0

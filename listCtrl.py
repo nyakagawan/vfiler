@@ -4,19 +4,26 @@
 import os
 import wx
 import time
+import re
 
 from util import Util
 from element import *
 from define import Def
+from keyReader import KeyReader
 
 class ListCtrl( wx.ListCtrl ):
     """ ファイルリストGUI
     """
+    LIST_MODE_NORMAL = (1<<0)
+    LIST_MODE_FILTERED = (1<<1)
+
     def __init__( self, parent, id, paneKind, frame ):
         wx.ListCtrl.__init__( self, parent, id, style=wx.LC_REPORT )
         self.paneKind = paneKind
         self.elemList = []
         self.frame = frame
+        self.listMode = 0
+        self.setListMode( ListCtrl.LIST_MODE_NORMAL )
 
         self.initGui()
         self.changeDir( os.path.abspath( os.getcwd() ) )
@@ -27,6 +34,12 @@ class ListCtrl( wx.ListCtrl ):
         """
         #return self.GetParent().GetParent()
         return self.frame
+
+    def setListMode( self, listMode ):
+        Util.trace( "change list mode %d => %d" %(self.listMode, listMode) )
+        self.listMode = listMode
+    def getListMode( self ):
+        return self.listMode
 
     def getCurDir( self ):
         return self.curDir
@@ -59,7 +72,7 @@ class ListCtrl( wx.ListCtrl ):
         self.SetBackgroundColour( BG_COLOR )
 
         self.Bind( wx.EVT_LIST_ITEM_SELECTED, self.OnItemSelected )
-        self.Bind( wx.EVT_LIST_KEY_DOWN, self.OnKeyDown )
+        self.Bind( wx.EVT_KEY_DOWN, self.OnKeyDown )
 
     def OnItemSelected( self, event ):
         #print "OnItemSelected !!!"
@@ -69,69 +82,78 @@ class ListCtrl( wx.ListCtrl ):
         """ キーダウンイベントハンドラ
         """
         #print "OnKeyDown !!!!" + str( event.GetKeyCode() )
-        keycode = event.GetKeyCode()
-        self.moveDir( keycode )
-        self.moveCursor( keycode )
-        self.changeFocus( keycode )
-        self.executeCommand( keycode )
+        kr = KeyReader( event )
+        self.moveDir( kr )
+        self.moveCursor( kr )
+        self.changeFocus( kr )
+        self.executeCommand( kr )
+        # ここでSkipをFalse（ほかにbindされた関数を呼ばない）にしないと
+        # '/'押下でTextCtrlにフォーカスしたときにEVT_TEXTが発生して'/'が入力されてしまう
+        # 理屈がいまいち分からんが、Skip(False)にしたらこれが無くなる。
+        event.Skip( False )
 
-    def moveDir( self, keycode ):
+    def moveDir( self, kr ):
         """ Key入力によってディレクトリを移動する
         """
         nextPath = ""
-        if keycode==Def.MOVE_DIR_UP_KEYCODE:
+        if kr.moveDirUp():
             nextPath = self.curDir + "/.."
-        if keycode==Def.MOVE_DIR_DOWN_KEYCODE:
+        elif kr.moveDirDown():
             nextPath = self.getItemAbsPath( self.GetFocusedItem() )
         if os.path.isdir( nextPath ):
             Util.trace( "moveDir %s -> %s" %(self.getCurDir(), nextPath) )
             nextPath = os.path.normpath( nextPath )
             self.changeDir( nextPath )
 
-    def moveCursor( self, keycode ):
+    def moveCursor( self, kr ):
         """ カーソル移動
         """
         nowSel = self.GetFirstSelected()
         itemCount = self.GetItemCount()
-        if keycode==Def.CORSOR_UP_KEYCODE:
+        if kr.cursorUp():
             self.Select( nowSel, False )
             nowSel = (nowSel-1) if nowSel>0 else itemCount-1
-        elif keycode==Def.CORSOR_DOWN_KEYCODE:
+        elif kr.cursorDown():
             self.Select( nowSel, False )
             nowSel = (nowSel+1) % itemCount
         if nowSel!=-1:
             self.Select( nowSel )
             self.Focus( nowSel )
 
-    def changeFocus( self, keycode ):
+    def changeFocus( self, kr ):
         """ Key入力によって、フォーカスしているペインをかえる
         """
         changePane = Def.PANE_KIND_INVALID
-        if keycode==Def.CORSOR_LEFT_KEYCODE:
+        if kr.cursorLeft():
             changePane = Def.PANE_KIND_LEFT
-        elif keycode==Def.CORSOR_RIGHT_KEYCODE:
+        elif kr.cursorRight():
             changePane = Def.PANE_KIND_RIGHT
         if changePane!=Def.PANE_KIND_INVALID and self.paneKind!=changePane:
             self.getFrame().setFocusedPane( self.getFrame().getPane( changePane ) )
 
-    def executeCommand( self, keycode ):
+    def executeCommand( self, kr ):
         """ いろんなコマンドを実行
         """
         focusedItemIndex = self.GetFocusedItem()
-        if keycode==Def.FILE_EDIT_KEYCODE:
+        if kr.fileEdit():
             cmd = "mvim --remote-silent %s" %( self.getItemAbsPath( focusedItemIndex ) )
             Util.trace("file edit command( %s )" %(cmd) )
             os.system( cmd )
-        elif keycode==Def.QUIT_KEYCODE:
+        elif kr.quit():
             self.getFrame().Close()
-        elif keycode==Def.COPY_KEYCODE:
+        elif kr.copy():
             self.copyElem()
-        elif keycode==Def.MOVE_KEYCODE:
+        elif kr.move():
             Util.trace( "!!! not implement" )
-        elif keycode==Def.DELETE_KEYCODE:
+        elif kr.delete():
             self.deleteElem()
-        elif keycode==Def.SEARCH_KEYCODE:
+        elif kr.search():
             self.searchElem()
+        elif kr.cancel():
+            if self.getListMode()==ListCtrl.LIST_MODE_FILTERED:
+                # ListModeがFilteredの時にキャンセルキー押されたら通常リストに戻す
+                self.updateFileList()
+                self.setListMode( ListCtrl.LIST_MODE_NORMAL )
 
     def copyElem( self ):
         """ 選択中エレメントを非フォーカスペインのディレクトリへコピーする
@@ -169,7 +191,7 @@ class ListCtrl( wx.ListCtrl ):
     def searchElem( self ):
         """ インクリメンタルサーチ
         """
-        self.getFrame().getTextCtrl().SetFocus()
+        self.getFrame().focusSearchTextCtrl()
 
     def getItemAbsPath( self, itemId ):
         """ Itemの絶対パスを取得
@@ -191,7 +213,7 @@ class ListCtrl( wx.ListCtrl ):
         Util.trace( "removeFileList" )
         self.DeleteAllItems()
 
-    def updateFileList( self, curDir=None ):
+    def updateFileList( self, curDir=None, filterFmt=None ):
         """ ファイルリストを更新
         """
         if curDir==None:
@@ -203,12 +225,17 @@ class ListCtrl( wx.ListCtrl ):
         listdir = os.listdir( curDir )
         iFile = 0
         for e in listdir:
+            if filterFmt!=None:
+                p = re.compile( filterFmt, re.IGNORECASE )
+                if not p.search( e ):
+                    continue# マッチしなかったらフィルターする
+
             absPath = "%s/%s" %( curDir, e )
             if os.path.isdir( absPath ):
-                Util.trace( "add DIR " + e )
+                #Util.trace( "add DIR " + e )
                 elem = ElemDir( iFile, self, e )
             else:
-                Util.trace( "add FILE " + e )
+                #Util.trace( "add FILE " + e )
                 elem = ElemFile( iFile, self, e )
             elem.update()
             self.elemList.append( elem )
@@ -217,8 +244,9 @@ class ListCtrl( wx.ListCtrl ):
     def updateIncSearch( self, searchWord ):
         """ 検索ワードを受け取って、Incremental検索結果を更新
         """
-        print "search of " + searchWord
-        pass
+        Util.trace( "search of " + searchWord )
+        self.updateFileList( filterFmt=searchWord )
+        self.setListMode( ListCtrl.LIST_MODE_FILTERED )
 
 
 

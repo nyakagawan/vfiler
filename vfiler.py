@@ -28,6 +28,7 @@ class VFiler( wx.Frame ):
         self.paneDict[ Def.PANE_KIND_LEFT ] = None
         self.paneDict[ Def.PANE_KIND_RIGHT ] = None
         self.sizer = None
+        self.focusedPane = None
 
         self.initGui()
 
@@ -39,7 +40,7 @@ class VFiler( wx.Frame ):
         self.Center()
         self.Show( True )
 
-    def initGui( self, textCtrlClass=None ):
+    def initGui( self ):
         # まずファイラー下のTextCtrlと上の縦Splitterを分けるSplitterを作る
         self.splitTextCtrl = wx.SplitterWindow( self, ID_SPLITTER_TEXTCTRL )
         self.splitTextCtrl.SetMinimumPaneSize( 20 )
@@ -47,26 +48,29 @@ class VFiler( wx.Frame ):
         self.textCtrl = TextCtrl( self.splitTextCtrl, ID_TEXTCTRL, self )
         self.textCtrl.SetSize( wx.Size(800,20) )
 
+        splitListCtrlParent = self.splitTextCtrl
+
         # ListCtrlを分けるSplitterを作る
-        self.splitListCtrl = wx.SplitterWindow( self.splitTextCtrl, ID_SPLITTER_LISTCTRL )
+        self.splitListCtrl = wx.SplitterWindow( splitListCtrlParent, ID_SPLITTER_LISTCTRL )
         self.splitListCtrl.SetMinimumPaneSize( 50 )
 
         paneLeft = ListCtrl( self.splitListCtrl, ID_LISTCTRL_LEFT, Def.PANE_KIND_LEFT, self )
         paneRight = ListCtrl( self.splitListCtrl, ID_LISTCTRL_RIGHT, Def.PANE_KIND_RIGHT, self )
         self.splitListCtrl.SplitVertically( paneLeft, paneRight )
 
-        # 上のSplitterと下のTextCtrlをSplitte
-        self.splitTextCtrl.SplitHorizontally( self.splitListCtrl, self.textCtrl )
-
         # 最初っからリストにフォーカスさせとく
         self.setFocusedPane( paneLeft )
         self.paneDict[ Def.PANE_KIND_LEFT ] = paneLeft
         self.paneDict[ Def.PANE_KIND_RIGHT ] = paneRight
 
+        # 上のSplitterと下のTextCtrlをSplitte
+        self.splitTextCtrl.SplitHorizontally( self.splitListCtrl, self.textCtrl )
+
         # Sizerを設定
         self.sizer = wx.BoxSizer( wx.VERTICAL )
         self.sizer.Add( self.splitTextCtrl, 1, wx.EXPAND )
         self.SetSizer( self.sizer )
+        self.setDefaultSashPosition()
 
 
     def getPane( self, paneKind ):
@@ -84,6 +88,8 @@ class VFiler( wx.Frame ):
 
     def getTextCtrl( self ):
         return self.textCtrl
+    def focusSearchTextCtrl( self ):
+        self.getTextCtrl().SetFocus()
 
     def updateFileList( self, paneKind ):
         self.getPane( paneKind ).updateFileList()
@@ -94,7 +100,8 @@ class VFiler( wx.Frame ):
     def setDefaultSashPosition( self ):
         size = self.GetSize()
         self.splitListCtrl.SetSashPosition( size.x / 2 )
-        self.splitTextCtrl.SetSashPosition( size.y - 20 )
+        if self.splitTextCtrl:
+            self.splitTextCtrl.SetSashPosition( size.y - 20 )
 
     def CreateWxToolBar( self ):
         tb = self.CreateToolBar( wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT )

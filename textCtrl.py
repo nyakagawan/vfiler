@@ -18,6 +18,10 @@ class TextCtrl( wx.TextCtrl ):
         self.frame = frame
         self.Bind( wx.EVT_KEY_DOWN, self.OnKeyDown )
         self.Bind( wx.EVT_SET_FOCUS, self.OnFocus )
+        self.Bind( wx.EVT_TEXT, self.OnTextEnter )
+
+    def OnTextEnter( self,event ):
+        print "on text enter"
 
     def getFrame( self ):
         return self.frame
@@ -25,6 +29,7 @@ class TextCtrl( wx.TextCtrl ):
     def OnKeyDown( self, event ):
         """ キーダウンイベントハンドラ
         """
+        print "on kye down"
         kr = KeyReader( event )
         if kr.cancel():
             # ESC押されたらListCtrlにフォーカスを戻す
@@ -38,4 +43,5 @@ class TextCtrl( wx.TextCtrl ):
 
     def OnFocus( self, event ):
         self.Clear()
+        event.Skip()
 
