@@ -149,6 +149,8 @@ class ListCtrl( wx.ListCtrl ):
             self.deleteElem()
         elif kr.search():
             self.searchElem()
+        elif kr.grep():
+            self.grepElem()
         elif kr.cancel():
             if self.getListMode()==ListCtrl.LIST_MODE_FILTERED:
                 # ListModeがFilteredの時にキャンセルキー押されたら通常リストに戻す
@@ -192,6 +194,11 @@ class ListCtrl( wx.ListCtrl ):
         """ インクリメンタルサーチ
         """
         self.getFrame().focusSearchTextCtrl()
+
+    def grepElem( self ):
+        """ Grep
+        """
+        self.getFrame().focusGrepTextCtrl()
 
     def getItemAbsPath( self, itemId ):
         """ Itemの絶対パスを取得

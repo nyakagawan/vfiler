@@ -90,6 +90,10 @@ class VFiler( wx.Frame ):
         return self.textCtrl
     def focusSearchTextCtrl( self ):
         self.getTextCtrl().SetFocus()
+        self.getTextCtrl().setMode( TextCtrl.MODE_SEARCH )
+    def focusGrepTextCtrl( self ):
+        self.getTextCtrl().SetFocus()
+        self.getTextCtrl().setMode( TextCtrl.MODE_GREP )
 
     def updateFileList( self, paneKind ):
         self.getPane( paneKind ).updateFileList()
@@ -125,7 +129,8 @@ class VFiler( wx.Frame ):
 
 
 app = wx.App( 0 )
-VFiler( None, -1, "VFiler" )
+vfiler = VFiler( None, -1, "VFiler" )
+app.SetTopWindow( vfiler )
 app.MainLoop()
 
 

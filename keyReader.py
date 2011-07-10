@@ -15,6 +15,9 @@ class KeyReader( object ):
     def getKeyCode(self):
         return self.keycode
 
+    def pressEnter( self ):
+        return True if self.keycode==wx.WXK_RETURN else False
+
 
     def cursorUp( self ):
         return True if self.keycode==Def.CORSOR_UP_KEYCODE else False
@@ -53,6 +56,9 @@ class KeyReader( object ):
 
     def search( self ):
         return True if self.keycode==Def.SEARCH_KEYCODE else False
+
+    def grep( self ):
+        return True if self.keycode==Def.GREP_KEYCODE else False
 
     def cancel( self ):
         if self.event.HasModifiers() and self.event.GetModifiers()==wx.MOD_CONTROL and self.keycode==ord("["):

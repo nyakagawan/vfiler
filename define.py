@@ -20,6 +20,7 @@ class Def:
     MOVE_KEYCODE = ord("M")
     DELETE_KEYCODE = ord("D")
     SEARCH_KEYCODE = ord("/")
+    GREP_KEYCODE = ord("G")
 
     LIST_COL_INDEX_NAME = 0
     LIST_COL_INDEX_EXT = 1
