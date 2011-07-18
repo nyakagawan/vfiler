@@ -41,7 +41,8 @@ class TextCtrl( wx.TextCtrl ):
             if self.mode==TextCtrl.MODE_SEARCH:
                 # インクリメンタルサーチ結果を更新する
                 self.EmulateKeyPress( event )
-                self.getFrame().getFocusedPane().updateIncSearch( self.GetLineText(0) )
+                if len( self.GetLineText(0) ):
+                    self.getFrame().getFocusedPane().updateIncSearch( self.GetLineText(0) )
                 return
             elif self.mode==TextCtrl.MODE_GREP:
                 if kr.pressEnter():
@@ -63,6 +64,8 @@ class TextCtrl( wx.TextCtrl ):
                             )
                     pd.ShowModal()
 
+                    """ このあたり作りかけ。Grepよりほかの実装項目を優先
+                    """
                     # ファイル舞にGrep処理
                     procedFileCount = 0
                     for path,dirs,files in os.walk( curDir ):

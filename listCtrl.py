@@ -46,8 +46,11 @@ class ListCtrl( wx.ListCtrl ):
 
     def OnChildFocus( self, event ):
         """ http://d.hatena.ne.jp/h1mesuke/20090429/p1 この現象に対応するため
+            このイベントは（何もしない場合でも）Skip()せずにフックする必要がある
         """
-        pass
+        if self.GetSelectedItemCount()==0 and len( self.elemList ):
+            # フォーカスがあるときに常に項目を選択状態にするため、Select
+            self.Select( 0, True )
 
     def getElemList( self ):
         return self.elemList
@@ -263,6 +266,9 @@ class ListCtrl( wx.ListCtrl ):
             elem.update()
             self.elemList.append( elem )
             iFile += 1
+
+        # フォーカスがあるときに常に項目を選択状態にするため、Select
+        self.Select( 0, True )
 
     def updateIncSearch( self, searchWord ):
         """ 検索ワードを受け取って、Incremental検索結果を更新
