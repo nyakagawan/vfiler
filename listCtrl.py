@@ -230,20 +230,36 @@ class ListCtrl( wx.ListCtrl ):
 
         Util.trace( "curDir [%s] updateFileList" %(curDir) )
         listdir = os.listdir( curDir )
-        iFile = 0
+        # ディレクトリ群、ファイル群の順番にソート
+        dirInfoList = []
+        fileInfoList = []
         for e in listdir:
+            info = {}
             if filterFmt!=None:
                 p = re.compile( filterFmt, re.IGNORECASE )
                 if not p.search( e ):
                     continue# マッチしなかったらフィルターする
 
+            info["name"] = e
             absPath = "%s/%s" %( curDir, e )
             if os.path.isdir( absPath ):
+                info["isDir"] = True
+                dirInfoList.append( info )
+            else:
+                info["isDir"] = False
+                fileInfoList.append( info )
+
+
+        infoList = dirInfoList + fileInfoList
+        # リストに追加
+        iFile = 0
+        for info in infoList:
+            if info["isDir"]:
                 #Util.trace( "add DIR " + e )
-                elem = ElemDir( iFile, self, e )
+                elem = ElemDir( iFile, self, info["name"] )
             else:
                 #Util.trace( "add FILE " + e )
-                elem = ElemFile( iFile, self, e )
+                elem = ElemFile( iFile, self, info["name"] )
             elem.update()
             self.elemList.append( elem )
             iFile += 1
