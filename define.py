@@ -21,6 +21,7 @@ class Def:
     DELETE_KEYCODE = ord("D")
     SEARCH_KEYCODE = ord("/")
     GREP_KEYCODE = ord("G")
+    SAME_DIR_KEYCODE = ord("O")
 
     LIST_COL_INDEX_NAME = 0
     LIST_COL_INDEX_EXT = 1

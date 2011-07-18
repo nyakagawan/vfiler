@@ -67,4 +67,7 @@ class KeyReader( object ):
             return True
         return False
 
+    def sameDir( self ):
+        return True if self.keycode==Def.SAME_DIR_KEYCODE else False
+
 

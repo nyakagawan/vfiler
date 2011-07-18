@@ -161,6 +161,9 @@ class ListCtrl( wx.ListCtrl ):
                 # ListModeがFilteredの時にキャンセルキー押されたら通常リストに戻す
                 self.updateFileList()
                 self.setListMode( ListCtrl.LIST_MODE_NORMAL )
+        elif kr.sameDir():
+            dirToChange = self.getFrame().getFocusedPane().getCurDir()
+            self.getFrame().getUnFocusedPane().changeDir( dirToChange )
 
     def copyElem( self ):
         """ 選択中エレメントを非フォーカスペインのディレクトリへコピーする
