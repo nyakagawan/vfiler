@@ -34,7 +34,7 @@ class TextCtrl( wx.TextCtrl ):
         """ キーダウンイベントハンドラ
         """
         kr = KeyReader( event )
-        if kr.cancel():
+        if kr.cancel() or kr.pressEnter():
             # ESC押されたらListCtrlにフォーカスを戻す
             self.getFrame().setFocusedPane( self.getFrame().getFocusedPane() )
         else:

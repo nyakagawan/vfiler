@@ -113,6 +113,8 @@ class ListCtrl( wx.ListCtrl ):
         """
         nowSel = self.GetFirstSelected()
         itemCount = self.GetItemCount()
+        if not itemCount:
+            return
         if kr.cursorUp():
             self.Select( nowSel, False )
             nowSel = (nowSel-1) if nowSel>0 else itemCount-1
@@ -268,7 +270,8 @@ class ListCtrl( wx.ListCtrl ):
             iFile += 1
 
         # フォーカスがあるときに常に項目を選択状態にするため、Select
-        self.Select( 0, True )
+        if len( self.elemList ):
+            self.Select( 0, True )
 
     def updateIncSearch( self, searchWord ):
         """ 検索ワードを受け取って、Incremental検索結果を更新
