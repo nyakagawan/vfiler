@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import threading
 from FSEvents import *
@@ -15,9 +16,15 @@ class DirCheck( threading.Thread ):
         # http://techno-st.net/2010/02/06/python-3.html
         self.setDaemon( True )
 
-        self._path = path
+        if path[-1] == '/':
+            path = path[:-1]
+        self._path = os.path.abspath( path )
+        self._isChanged = False
 
         self.start()
+
+    def isChanged( self ):
+        return self._isChanged
 
     def run( self ):
         path = self._path
@@ -70,6 +77,10 @@ class DirCheck( threading.Thread ):
             path = eventPaths[i]
             if path[-1] == '/':
                 path = path[:-1]
+
+            print "eventPath => %s" %(path)
+            if path==self._path:
+                self._isChanged = True
 
             eventMarsk = eventMarsks[i]
             if eventMarsk & kFSEventStreamEventFlagMustScanSubDirs:
