@@ -26,6 +26,9 @@ class DirCheck( threading.Thread ):
     def isChanged( self ):
         return self._isChanged
 
+    def offChangeFlag( self ):
+        self._isChanged = False
+
     def run( self ):
         path = self._path
         self._streamRef = FSEventStreamCreate(
@@ -42,7 +45,7 @@ class DirCheck( threading.Thread ):
             Util.trace( "FSEventStreamCreate is failed" )
             return
 
-        if True:
+        if False:
             FSEventStreamShow( self._streamRef )
 
         FSEventStreamScheduleWithRunLoop(self._streamRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode)

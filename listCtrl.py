@@ -5,11 +5,14 @@ import os
 import wx
 import time
 import re
+import threading
 
 from util import Util
 from element import *
 from define import Def
 from keyReader import KeyReader
+from intervalTimer import IntervalTimer
+from dirCheck import DirCheck
 
 class ListCtrl( wx.ListCtrl ):
     """ ファイルリストGUI
@@ -28,6 +31,11 @@ class ListCtrl( wx.ListCtrl ):
         self.initGui()
         self.changeDir( os.path.abspath( os.getcwd() ) )
         self.Bind( wx.EVT_CHILD_FOCUS, self.OnChildFocus )
+
+        self.updateTimer = IntervalTimer( 1, self.updateTimerCallback )
+        self.updateTimer.start()
+
+        self.checkDir = None
 
     def getFrame( self ):
         """ Frameオブジェクトを得る
@@ -151,7 +159,8 @@ class ListCtrl( wx.ListCtrl ):
         elif kr.move():
             Util.trace( "!!! not implement" )
         elif kr.delete():
-            self.deleteElem()
+            #self.deleteElem()
+            pass
         elif kr.search():
             self.searchElem()
         elif kr.grep():
@@ -196,7 +205,7 @@ class ListCtrl( wx.ListCtrl ):
             Util.trace( cmd )
             os.system( cmd )
             # 両方のペインのファイルリスト更新
-            self.getFrame().updateFileListBoth()
+            #self.getFrame().updateFileListBoth()
     
     def searchElem( self ):
         """ インクリメンタルサーチ
@@ -221,6 +230,8 @@ class ListCtrl( wx.ListCtrl ):
         if os.path.isdir( path ):
             self.curDir = path
             self.updateFileList( self.curDir )
+            self.dirChecker = DirCheck( path )
+
   
     def removeFileList( self ):
         """ ファイルリストを削除
@@ -282,6 +293,13 @@ class ListCtrl( wx.ListCtrl ):
         Util.trace( "search of " + searchWord )
         self.updateFileList( filterFmt=searchWord )
         self.setListMode( ListCtrl.LIST_MODE_FILTERED )
+
+    def updateTimerCallback( self ):
+        """ 一定間隔でコールバックされる。ディレクトリ監視状態などをチェック
+        """
+        if self.dirChecker and self.dirChecker.isChanged():
+            self.updateFileList()
+            self.dirChecker.offChangeFlag()
 
 
 
