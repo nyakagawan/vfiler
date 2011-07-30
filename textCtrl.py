@@ -43,12 +43,12 @@ class TextCtrl( wx.TextCtrl ):
                 # インクリメンタルサーチ結果を更新する
                 self.EmulateKeyPress( event )
                 if len( self.GetLineText(0) ):
-                    self.getFrame().getFocusedPane().updateIncSearch( self.GetLineText(0) )
+                    self.getFrame().getFocusedListCtrl().updateIncSearch( self.GetLineText(0) )
                 return
             elif self.mode==TextCtrl.MODE_GREP:
                 if KMap.isDecide( event ):
                     # grepを行う
-                    curDir = self.getFrame().getFocusedPane().getCurDir()
+                    curDir = self.getFrame().getFocusedListCtrl().getCurDir()
                     # まず処理するファイル総数を計測
                     totalFileCount = 0
                     for path,dirs,files in os.walk( curDir ):

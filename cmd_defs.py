@@ -11,31 +11,31 @@ from listCtrl import ListCtrl
 from textCtrl import TextCtrl
 
 def Cmd_CursorUp( vfiler, event ):
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     listCtrl.moveCursor( ListCtrl.MOVE_CURSOR_UP )
 
 def Cmd_CursorDown( vfiler, event ):
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     listCtrl.moveCursor( ListCtrl.MOVE_CURSOR_DOWN )
 
 def Cmd_CursorLeft( vfiler, event ):
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     listCtrl.changeFocus( Def.PANE_KIND_LEFT )
 
 def Cmd_CursorRight( vfiler, event ):
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     listCtrl.changeFocus( Def.PANE_KIND_RIGHT )
 
 def Cmd_MoveDirUp( vfiler, event ):
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     listCtrl.moveDir( ListCtrl.MOVE_DIR_UP )
 
 def Cmd_MoveDirDown( vfiler, event ):
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     listCtrl.moveDir( ListCtrl.MOVE_DIR_DOWN )
 
 def Cmd_FileEdit( vfiler, event ):
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     focusedItemIndex = listCtrl.GetFocusedItem()
     cmd = "mvim --remote-silent %s" %( listCtrl.getItemAbsPath( focusedItemIndex ) )
     Util.trace("file edit command( %s )" %(cmd) )
@@ -47,7 +47,7 @@ def Cmd_Quit( vfiler, event ):
 def Cmd_Copy( vfiler, event ):
     """ 選択中エレメントを非フォーカスペインのディレクトリへコピーする
     """
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     focusedItemIndex = listCtrl.GetFocusedItem()
     if listCtrl.getElemCount() and focusedItemIndex>=0:
         forcusedElem = listCtrl.getElem( focusedItemIndex )
@@ -67,7 +67,7 @@ def Cmd_Move( vfiler, event ):
 def Cmd_Delete( vfiler, event ):
     """ 選択中エレメントをファイルリストから削除する
     """
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     focusedItemIndex = listCtrl.GetFocusedItem()
     if listCtrl.getElemCount() and focusedItemIndex>=0:
         forcusedElem = listCtrl.getElem( focusedItemIndex )
@@ -93,7 +93,7 @@ def Cmd_Grep( vfiler, event ):
 def Cmd_SameDir( vfiler, event ):
     """ フォーカスのないリストのディレクトリを、フォーカスのあるリストと一緒にする
     """
-    listCtrl = vfiler.getFocusedPane()
+    listCtrl = vfiler.getFocusedListCtrl()
     dirToChange = listCtrl.getCurDir()
     vfiler.getUnFocusedPane().changeDir( dirToChange )
 

@@ -21,7 +21,7 @@ class ListCtrl( wx.ListCtrl ):
     LIST_MODE_FILTERED = (1<<1)
 
     def __init__( self, parent, id, paneKind, frame ):
-        wx.ListCtrl.__init__( self, parent, id, style=wx.LC_REPORT )
+        wx.ListCtrl.__init__( self, parent, id, style=wx.LC_REPORT | wx.EXPAND )
         self.paneKind = paneKind
         self.elemList = []
         self.frame = frame
@@ -29,7 +29,6 @@ class ListCtrl( wx.ListCtrl ):
         self.setListMode( ListCtrl.LIST_MODE_NORMAL )
 
         self.initGui()
-        self.changeDir( os.path.abspath( os.getcwd() ) )
         self.Bind( wx.EVT_CHILD_FOCUS, self.OnChildFocus )
 
         self.updateTimer = IntervalTimer( 1, self.updateTimerCallback )
@@ -40,7 +39,6 @@ class ListCtrl( wx.ListCtrl ):
     def getFrame( self ):
         """ Frameオブジェクトを得る
         """
-        #return self.GetParent().GetParent()
         return self.frame
 
     def setListMode( self, listMode ):
@@ -145,7 +143,8 @@ class ListCtrl( wx.ListCtrl ):
         """
         changePane = paneKind
         if changePane!=Def.PANE_KIND_INVALID and self.paneKind!=changePane:
-            self.getFrame().setFocusedPane( self.getFrame().getPane( changePane ) )
+            changePaneCtrl = self.getFrame().getPane( changePane )
+            self.getFrame().setFocusedPane( changePaneCtrl )
 
     def copyElem( self ):
         """ 選択中エレメントを非フォーカスペインのディレクトリへコピーする
@@ -204,6 +203,7 @@ class ListCtrl( wx.ListCtrl ):
             self.curDir = path
             self.updateFileList( self.curDir )
             self.dirChecker = DirCheck( path )
+            self.getFrame().getPane( self.paneKind ).setPathText( path )
 
   
     def removeFileList( self ):
