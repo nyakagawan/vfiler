@@ -34,7 +34,8 @@ class TextCtrl( wx.TextCtrl ):
         """ キーダウンイベントハンドラ
         """
         kr = KeyReader( event )
-        if kr.cancel() or kr.pressEnter():
+        from keyMapper import KeyMapper_TextCtrl as KMap
+        if KMap.isCancel( event ) or KMap.isDecide( event ):
             # ESC押されたらListCtrlにフォーカスを戻す
             self.getFrame().setFocusedPane( self.getFrame().getFocusedPane() )
         else:
@@ -45,7 +46,7 @@ class TextCtrl( wx.TextCtrl ):
                     self.getFrame().getFocusedPane().updateIncSearch( self.GetLineText(0) )
                 return
             elif self.mode==TextCtrl.MODE_GREP:
-                if kr.pressEnter():
+                if KMap.isDecide( event ):
                     # grepを行う
                     curDir = self.getFrame().getFocusedPane().getCurDir()
                     # まず処理するファイル総数を計測

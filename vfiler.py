@@ -7,6 +7,7 @@ import wx
 from listCtrl import ListCtrl
 from textCtrl import TextCtrl
 from define import Def
+from keyMapper import KeyMapper_ListCtrl
 
 ID_SPLITTER_LISTCTRL = 300
 ID_SPLITTER_TEXTCTRL = 301
@@ -130,6 +131,7 @@ class VFiler( wx.Frame ):
 
 app = wx.App( 0 )
 vfiler = VFiler( None, -1, "VFiler" )
+KeyMapper_ListCtrl.setup( vfiler )
 app.SetTopWindow( vfiler )
 app.MainLoop()
 

@@ -92,87 +92,60 @@ class ListCtrl( wx.ListCtrl ):
     def OnKeyDown( self, event ):
         """ キーダウンイベントハンドラ
         """
-        #print "OnKeyDown !!!!" + str( event.GetKeyCode() )
-        kr = KeyReader( event )
-        self.moveDir( kr )
-        self.moveCursor( kr )
-        self.changeFocus( kr )
-        self.executeCommand( kr )
+        from keyMapper import KeyMapper_ListCtrl as KMap
+        # マッピングされた各種コマンドの実行
+        KMap.execute( event )
+        # キャンセルキーが押されたときの処理
+        if KMap.isCancel( event ):
+            if self.getListMode()==ListCtrl.LIST_MODE_FILTERED:
+                # ListModeがFilteredの時にキャンセルキー押されたら通常リストに戻す
+                self.updateFileList()
+                self.setListMode( ListCtrl.LIST_MODE_NORMAL )
         # ここでSkipをFalse（ほかにbindされた関数を呼ばない）にしないと
         # '/'押下でTextCtrlにフォーカスしたときにEVT_TEXTが発生して'/'が入力されてしまう
         # 理屈がいまいち分からんが、Skip(False)にしたらこれが無くなる。
         event.Skip( False )
 
-    def moveDir( self, kr ):
+    MOVE_DIR_UP =(1<<0)
+    MOVE_DIR_DOWN =(1<<1)
+    def moveDir( self, moveDirDirection ):
         """ Key入力によってディレクトリを移動する
         """
         nextPath = ""
-        if kr.moveDirUp():
+        if moveDirDirection==self.MOVE_DIR_UP:
             nextPath = self.curDir + "/.."
-        elif kr.moveDirDown():
+        elif moveDirDirection==self.MOVE_DIR_DOWN:
             nextPath = self.getItemAbsPath( self.GetFocusedItem() )
         if os.path.isdir( nextPath ):
             Util.trace( "moveDir %s -> %s" %(self.getCurDir(), nextPath) )
             nextPath = os.path.normpath( nextPath )
             self.changeDir( nextPath )
 
-    def moveCursor( self, kr ):
+    MOVE_CURSOR_UP = (1<<0)
+    MOVE_CURSOR_DOWN = (1<<1)
+    def moveCursor( self, moveCursorDirection ):
         """ カーソル移動
         """
         nowSel = self.GetFirstSelected()
         itemCount = self.GetItemCount()
         if not itemCount:
             return
-        if kr.cursorUp():
+        if moveCursorDirection==self.MOVE_CURSOR_UP:
             self.Select( nowSel, False )
             nowSel = (nowSel-1) if nowSel>0 else itemCount-1
-        elif kr.cursorDown():
+        elif moveCursorDirection==self.MOVE_CURSOR_DOWN:
             self.Select( nowSel, False )
             nowSel = (nowSel+1) % itemCount
         if nowSel!=-1:
             self.Select( nowSel )
             self.Focus( nowSel )
 
-    def changeFocus( self, kr ):
+    def changeFocus( self, paneKind ):
         """ Key入力によって、フォーカスしているペインをかえる
         """
-        changePane = Def.PANE_KIND_INVALID
-        if kr.cursorLeft():
-            changePane = Def.PANE_KIND_LEFT
-        elif kr.cursorRight():
-            changePane = Def.PANE_KIND_RIGHT
+        changePane = paneKind
         if changePane!=Def.PANE_KIND_INVALID and self.paneKind!=changePane:
             self.getFrame().setFocusedPane( self.getFrame().getPane( changePane ) )
-
-    def executeCommand( self, kr ):
-        """ いろんなコマンドを実行
-        """
-        focusedItemIndex = self.GetFocusedItem()
-        if kr.fileEdit():
-            cmd = "mvim --remote-silent %s" %( self.getItemAbsPath( focusedItemIndex ) )
-            Util.trace("file edit command( %s )" %(cmd) )
-            os.system( cmd )
-        elif kr.quit():
-            self.getFrame().Close()
-        elif kr.copy():
-            self.copyElem()
-        elif kr.move():
-            Util.trace( "!!! not implement" )
-        elif kr.delete():
-            #self.deleteElem()
-            pass
-        elif kr.search():
-            self.searchElem()
-        elif kr.grep():
-            self.grepElem()
-        elif kr.cancel():
-            if self.getListMode()==ListCtrl.LIST_MODE_FILTERED:
-                # ListModeがFilteredの時にキャンセルキー押されたら通常リストに戻す
-                self.updateFileList()
-                self.setListMode( ListCtrl.LIST_MODE_NORMAL )
-        elif kr.sameDir():
-            dirToChange = self.getFrame().getFocusedPane().getCurDir()
-            self.getFrame().getUnFocusedPane().changeDir( dirToChange )
 
     def copyElem( self ):
         """ 選択中エレメントを非フォーカスペインのディレクトリへコピーする

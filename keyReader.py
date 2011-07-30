@@ -6,12 +6,37 @@ import wx
 
 from define import Def
 
+
+IS_DPRINT_KEYDOWN_DETAIL = False
+IS_KEYDOWN_IGNORE = False
+
 class KeyReader( object ):
     """ OnKeyDownのeventオブジェクトから何が押されたのかを判定する関数を提供する
     """
+    MOD_KEY_ALT     =(1<<0)
+    MOD_KEY_CMD     =(1<<1)
+    MOD_KEY_CTRL    =(1<<2)
+    MOD_KEY_SHIFT   =(1<<3)
+
     def __init__( self, event ):
-        self.keycode = event.GetKeyCode()
         self.event = event
+        self.keycode = event.GetKeyCode()
+        self.modKey = 0
+        if self.event.AltDown():    self.modKey |= self.MOD_KEY_ALT
+        if self.event.CmdDown():    self.modKey |= self.MOD_KEY_CMD
+        if self.event.ControlDown():self.modKey |= self.MOD_KEY_CTRL
+        if self.event.ShiftDown():  self.modKey |= self.MOD_KEY_SHIFT
+
+        if IS_DPRINT_KEYDOWN_DETAIL:
+            print "keycode " + str(self.keycode)
+            print "- alt " + "true" if self.event.AltDown() else "false"
+            print "- cmd " + "true" if self.event.CmdDown() else "false"
+            print "- ctrl " + "true" if self.event.ControlDown() else "false"
+            print "- shift " + "true" if self.event.ShiftDown() else "false"
+
+        if IS_KEYDOWN_IGNORE:
+            self.keycode = 0
+
     def getKeyCode(self):
         return self.keycode
 
