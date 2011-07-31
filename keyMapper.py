@@ -100,6 +100,10 @@ class KeyMapper():
                 return True
         return False
 
+    @classmethod
+    def setup( cls, vfiler ):
+        cls.vfiler = vfiler
+
 
 
 class KeyMapper_ListCtrl( KeyMapper ):
@@ -126,6 +130,7 @@ class KeyMapper_ListCtrl( KeyMapper ):
         cls.add( CommandDef( KeyDef( ord("/") ), Cmd_Search ) )
         cls.add( CommandDef( KeyDef( ord("G") ), Cmd_Grep ) )
         cls.add( CommandDef( KeyDef( ord("O") ), Cmd_SameDir ) )
+        cls.add( CommandDef( KeyDef( wx.WXK_RETURN, KeyDef.MOD_KEY_CTRL ), Cmd_Open ) )
 
 
 class KeyMapper_TextCtrl( KeyMapper ):

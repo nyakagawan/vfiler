@@ -4,45 +4,15 @@
 import os
 import wx
 
-from listCtrl import ListCtrl
+from listPanel import ListPanel
 from textCtrl import TextCtrl
 from define import Def
-from keyMapper import KeyMapper_ListCtrl
-
-ID_SPLITTER_LISTCTRL = 300
-ID_SPLITTER_TEXTCTRL = 301
-ID_SPLITTER_PATH_LABEL = 302
-ID_LISTCTRL_LEFT = 500
-ID_LISTCTRL_RIGHT = 501
-ID_TEXTCTRL = 505
-
-class ListPanel( wx.Panel ):
-    """ ファイルリスト、リストの上のパス表示エリアが乗るPanelコントロール
-    """
-    def __init__( self, parent, guid, paneKind, frame ):
-        wx.Panel.__init__( self, parent, guid )
-        self.frame = frame
-        self.paneKind = paneKind
-        self.staticText = None
-        self.listCtrl = None
-
-    def initGui( self ):
-        vbox = wx.BoxSizer( wx.VERTICAL )
-        self.staticText = wx.StaticText( self, -1, "Static " + str(self.paneKind) )
-        vbox.Add( self.staticText, 0, wx.EXPAND, 10 )
-        self.listCtrl = ListCtrl( self, -1, self.paneKind, self.frame )
-        vbox.Add( self.listCtrl, 1, wx.EXPAND )
-        self.SetSizer( vbox )
-
-    def getListCtrl( self ):
-        return self.listCtrl
-
-    def setPathText( self, text ):
-        self.staticText.SetLabel( text )
+from keyMapper import KeyMapper_ListCtrl, KeyMapper_TextCtrl
+from idManager import IdManager
 
 class VFiler( wx.Frame ):
     def __init__( self, parent, id, title ):
-        wx.Frame.__init__( self, parent, -1, title )
+        wx.Frame.__init__( self, parent, id, title )
         self.Center()
 
         self.Bind( wx.EVT_SIZE, self.OnSize )
@@ -68,22 +38,22 @@ class VFiler( wx.Frame ):
 
     def initGui( self ):
         # まずファイラー下のTextCtrlと上の縦Splitterを分けるSplitterを作る
-        self.splitTextCtrl = wx.SplitterWindow( self, ID_SPLITTER_TEXTCTRL )
+        self.splitTextCtrl = wx.SplitterWindow( self, IdManager.textCtrlSplitter() )
         self.splitTextCtrl.SetMinimumPaneSize( 20 )
 
-        self.textCtrl = TextCtrl( self.splitTextCtrl, ID_TEXTCTRL, self )
+        self.textCtrl = TextCtrl( self.splitTextCtrl, IdManager.textCtrl(), self )
         self.textCtrl.SetSize( wx.Size(800,20) )
 
         splitListCtrlParent = self.splitTextCtrl
 
         # ListCtrlを分けるSplitterを作る
-        self.splitListCtrl = wx.SplitterWindow( splitListCtrlParent, ID_SPLITTER_LISTCTRL )
+        self.splitListCtrl = wx.SplitterWindow( splitListCtrlParent, IdManager.listPanelSplitter() )
         self.splitListCtrl.SetMinimumPaneSize( 50 )
 
         paneLeft = self.initGuiPartOfList(
-                self.splitListCtrl, ID_LISTCTRL_LEFT, Def.PANE_KIND_LEFT )
+                self.splitListCtrl, IdManager.listPanel( Def.PANE_KIND_LEFT ), Def.PANE_KIND_LEFT )
         paneRight = self.initGuiPartOfList(
-                self.splitListCtrl, ID_LISTCTRL_RIGHT, Def.PANE_KIND_RIGHT )
+                self.splitListCtrl, IdManager.listPanel( Def.PANE_KIND_RIGHT ), Def.PANE_KIND_RIGHT )
         self.splitListCtrl.SplitVertically( paneLeft, paneRight )
 
         # 最初っからリストにフォーカスさせとく
@@ -157,8 +127,9 @@ class VFiler( wx.Frame ):
 
 
 app = wx.App( 0 )
-vfiler = VFiler( None, -1, "VFiler" )
+vfiler = VFiler( None, IdManager.frame(), "VFiler" )
 KeyMapper_ListCtrl.setup( vfiler )
+KeyMapper_TextCtrl.setup( vfiler )
 app.SetTopWindow( vfiler )
 app.MainLoop()
 

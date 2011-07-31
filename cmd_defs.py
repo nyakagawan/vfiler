@@ -97,6 +97,15 @@ def Cmd_SameDir( vfiler, event ):
     dirToChange = listCtrl.getCurDir()
     vfiler.getUnFocusedPane().changeDir( dirToChange )
 
+def Cmd_Open( vfiler, event ):
+    """ 関連づけられたプログラムでファイルを開く
+    """
+    listCtrl = vfiler.getFocusedListCtrl()
+    focusedItemIndex = listCtrl.GetFocusedItem()
+    cmd = "open %s" %( listCtrl.getItemAbsPath( focusedItemIndex ) )
+    Util.trace( cmd )
+    os.system( cmd )
+
 
 
 
